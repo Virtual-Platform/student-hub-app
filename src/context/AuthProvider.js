@@ -1,21 +1,24 @@
-// context/AuthProvider.js
 import React, { createContext, useState, useEffect } from 'react';
-import { onAuthStateChanged, getAuth } from 'firebase/auth';
-import { auth } from '../firebase-config'; // ✅ Ensure correct path
+import { auth } from '../firebase-config';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
+console.log('auth object:', auth)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      console.log('firebase user:', firebaseUser);
+      setUser(firebaseUser);
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log('Unsubscribing auth listener');
+      unsubscribe();
+    };
   }, []);
 
   return (

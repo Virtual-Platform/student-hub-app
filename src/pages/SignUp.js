@@ -13,6 +13,9 @@ import { Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase-config';
+import { setDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase-config';
+
 
 // Email validation
 const validateEmail = (email) => {
@@ -74,12 +77,31 @@ export default function SignUp() {
     setEmailError('');
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      Alert.alert('Signup successful!', 'You can now log in.');
-      navigation.navigate('Login');
-    } catch (error) {
-      console.error('Signup Error:', error.message);
-      setError(error.message);
+     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Save additional user data to Firestore
+    await setDoc(doc(db, 'users', user.uid), {
+      fullName: formData.fullName,
+      age: formData.age,
+      language: formData.language,
+      race: formData.race,
+      gender: formData.gender,
+      careerAmbition: formData.careerAmbition,
+      email: formData.email,
+      schoolName: formData.schoolName,
+      schoolLocation: formData.schoolLocation,
+      grade: formData.grade,
+      schoolPrincipal: formData.schoolPrincipal,
+      schoolGuidance: formData.schoolGuidance,
+      createdAt: new Date(),
+    });
+
+    Alert.alert('Signup successful!', 'You can now log in.');
+    navigation.navigate('Login');
+  } catch (error) {
+    console.error('Signup Error:', error.message);
+    setError(error.message);
     }
   };
 

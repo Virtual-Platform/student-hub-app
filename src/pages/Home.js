@@ -1,176 +1,208 @@
-import React, { useLayoutEffect } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
-import { Card, Button } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native';
-// ⚠️ Only use MainLayout if it doesn't override the native header
-import MainLayout from '../components/MainLayout';
+// import React, { useEffect, useState } from 'react';
+// import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
+// import { Button, Card } from 'react-native-paper';
+// import { useNavigation } from '@react-navigation/native';
+// import { auth } from '../firebase-config';
+// import { doc, getDoc } from 'firebase/firestore';
+// import { db } from '../firebase-config';
+// import Icon from 'react-native-vector-icons/FontAwesome';
 
-const studentImage = require('../../assets/student.png');
+// const studentImage = require('../../assets/student.png');
+
+// export default function Home() {
+//   const navigation = useNavigation();
+//   const currentUser = auth.currentUser;
+
+//   const [profileData, setProfileData] = useState({
+//     name: '',
+//     grade: '',
+//     school: '',
+//   });
+
+//   useEffect(() => {
+//     const fetchUserProfile = async () => {
+//       if (currentUser) {
+//         try {
+//           const docRef = doc(db, 'users', currentUser.uid);
+//           const docSnap = await getDoc(docRef);
+
+//           if (docSnap.exists()) {
+//             const data = docSnap.data();
+//             setProfileData({
+//               name: data.fullName || 'Anonymous User',
+//               grade: data.grade || 'N/A',
+//               school: data.schoolName || 'N/A',
+//             });
+//           } else {
+//             console.log('No user document found.');
+//           }
+//         } catch (error) {
+//           console.error('Error fetching user profile:', error);
+//         }
+//       }
+//     };
+
+//     fetchUserProfile();
+//   }, [currentUser]);
+
+//   return (
+//     <ScrollView contentContainerStyle={styles.container}>
+//       <View style={styles.row}>
+//         <View style={styles.column}>
+//           <Card style={styles.card}>
+//             <Card.Content style={styles.center}>
+//               <Image source={studentImage} style={styles.profileImage} />
+//               <Text style={styles.name}>{profileData.name}</Text>
+//               <Text>Grade: {profileData.grade}</Text>
+//               <Text>School: {profileData.school}</Text>
+//               <Text>Email: {currentUser?.email}</Text>
+
+//               <Button
+//                 mode="outlined"
+//                 onPress={() => navigation.navigate('Profile')}
+//                 style={styles.button}
+//               >
+//                 Update Profile
+//               </Button>
+//             </Card.Content>
+//           </Card>
+
+//           <Card style={styles.card}>
+//             <Card.Title title="Career Updates" />
+//             <Card.Content>
+//               <Text>Stay tuned for career-related updates and news here.</Text>
+//             </Card.Content>
+//           </Card>
+//         </View>
+//       </View>
+//     </ScrollView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     padding: 10,
+//     backgroundColor: '#fff',
+//     flexGrow: 1,
+//   },
+//   row: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//   },
+//   column: {
+//     flex: 1,
+//     marginHorizontal: 5,
+//   },
+//   card: {
+//     marginBottom: 15,
+//   },
+//   center: {
+//     alignItems: 'center',
+//   },
+//   profileImage: {
+//     width: 100,
+//     height: 100,
+//     borderRadius: 50,
+//     marginBottom: 10,
+//   },
+//   name: {
+//     fontWeight: 'bold',
+//     fontSize: 18,
+//     marginBottom: 5,
+//   },
+//   button: {
+//     marginTop: 10,
+//   },
+// });
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { auth, db } from '../firebase-config';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function Home() {
-  const navigation = useNavigation();
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const userData = {
-    name: 'John Doe',
-    grade: '11',
-    school: 'PE High School',
-    profileImage: studentImage,
-  };
+  useEffect(() => {
+    // Listen for auth state change
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        // Fetch Firestore user profile data
+        const docRef = doc(db, 'users', firebaseUser.uid);
+        const docSnap = await getDoc(docRef);
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <Button
-          onPress={() => {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LandingPage' }],
-            });
-          }}
-          mode="text"
-          compact
-          labelStyle={{ color: '#e74c3c', fontWeight: 'bold' }}
-        >
-          Logout
-        </Button>
-      ),
+        if (docSnap.exists()) {
+          setProfile(docSnap.data());
+        } else {
+          setProfile(null);
+        }
+      } else {
+        setUser(null);
+        setProfile(null);
+      }
+      setLoading(false);
     });
-  }, [navigation]);
+
+    return unsubscribe; // Clean up listener on unmount
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#0066cc" />
+      </View>
+    );
+  }
+
+  if (!user) {
+    return (
+      <View style={styles.center}>
+        <Text>Please log in to view your profile.</Text>
+      </View>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <View style={styles.center}>
+        <Text>No profile data found.</Text>
+      </View>
+    );
+  }
 
   return (
-    <MainLayout>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.row}>
-          {/* Left Column */}
-          <View style={styles.columnLeft}>
-            <Card style={styles.card}>
-              <Card.Content style={styles.center}>
-                {userData.profileImage ? (
-                  <Image source={userData.profileImage} style={styles.profileImage} />
-                ) : (
-                  <Icon name="user-circle" size={100} color="#888" />
-                )}
-                <Text style={styles.name}>{userData.name}</Text>
-                <Text>Grade: {userData.grade}</Text>
-                <Text>School: {userData.school}</Text>
-                <Button
-                  mode="outlined"
-                  onPress={() => navigation.navigate('Profile')}
-                  style={styles.button}
-                >
-                  Update Profile
-                </Button>
-              </Card.Content>
-            </Card>
-
-            <Card style={styles.card}>
-              <Card.Title title="Career Updates" />
-              <Card.Content>
-                <Text>Stay tuned for career-related updates and news here.</Text>
-              </Card.Content>
-            </Card>
-          </View>
-
-          {/* Middle Column */}
-          <View style={styles.columnMiddle}>
-            <Card style={styles.card}>
-              <Card.Title title="News Updates" />
-              <Card.Content>
-                <Text>Catch up with the latest news that matters to you.</Text>
-              </Card.Content>
-            </Card>
-
-            <Card style={styles.card}>
-              <Card.Title title="Sponsor Information" />
-              <Card.Content>
-                <Text>Meet our sponsors and how they support your journey.</Text>
-              </Card.Content>
-            </Card>
-          </View>
-
-          {/* Right Column */}
-          <View style={styles.columnRight}>
-            {[
-              { title: 'Learn to play chess', route: 'Chess' },
-              { title: 'Coding Bootcamps', route: 'Bootcamps' },
-              { title: 'Take a Survey', route: 'Survey' },
-              { title: 'K53 Learners Practice', route: 'K53' },
-              { title: 'Add to your Feed', route: 'Feed' },
-            ].map((item, index) => (
-              <Card key={index} style={styles.card}>
-                <Card.Content>
-                  <Text style={styles.cardTitle}>{item.title}</Text>
-                  <Button
-                    mode="outlined"
-                    onPress={() => navigation.navigate(item.route)}
-                    compact
-                  >
-                    {item.title.includes('Learn')
-                      ? 'Learn More'
-                      : item.title.includes('Coding')
-                      ? 'Explore'
-                      : item.title.includes('Survey')
-                      ? 'Start Survey'
-                      : item.title.includes('K53')
-                      ? 'Start Practice'
-                      : 'Customize'}
-                  </Button>
-                </Card.Content>
-              </Card>
-            ))}
-          </View>
-        </View>
-      </ScrollView>
-    </MainLayout>
+    <View style={styles.container}>
+      <Text style={styles.title}>Welcome, {profile.fullName}!</Text>
+      <Text style={styles.info}>Grade: {profile.grade}</Text>
+      <Text style={styles.info}>School: {profile.schoolName}</Text>
+      <Text style={styles.info}>School Location: {profile.schoolLocation}</Text>
+      <Text style={styles.info}>Career Ambition: {profile.careerAmbition}</Text>
+      {/* Add more fields as needed */}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 10,
-    backgroundColor: '#fff',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  columnLeft: {
-    flex: 1,
-    marginRight: 5,
-  },
-  columnMiddle: {
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  columnRight: {
-    flex: 1,
-    marginLeft: 5,
-  },
-  card: {
-    marginBottom: 15,
-  },
   center: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
+  container: {
+    padding: 20,
+    backgroundColor: '#fff',
+    flex: 1,
   },
-  name: {
+  title: {
+    fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  info: {
     fontSize: 18,
-    marginBottom: 5,
-  },
-  button: {
-    marginTop: 10,
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 8,
+    marginBottom: 10,
   },
 });

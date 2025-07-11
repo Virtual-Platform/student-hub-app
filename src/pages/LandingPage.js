@@ -9,7 +9,7 @@ export default function LandingPage() {
   const navigation = useNavigation();
 
   return (
-    <MainLayout>
+    <>
       <ScrollView contentContainerStyle={styles.container}>
         <Image source={require('../../assets/logo.png')} style={styles.logo} />
         <Text style={styles.title}>Welcome to your Career Community</Text>
@@ -22,10 +22,10 @@ export default function LandingPage() {
             <Text style={styles.cardTitle}>Education</Text>
             <Text style={styles.cardText}>Comprehensive career education tailored for South African Students</Text>
             <View style={styles.bullets}>
-              <Text style={styles.bulltetItem}>• Interactive crareer exploration tools</Text>
-              <Text style={styles.bulltetItem}>• Skill development programs</Text>
-              <Text style={styles.bulltetItem}>• Industry-aligned learning paths</Text>
-              <Text style={styles.bulltetItem}>• Assessment and Certification</Text>
+              <Text style={styles.bulletItem}>• Interactive crareer exploration tools</Text>
+              <Text style={styles.bulletItem}>• Skill development programs</Text>
+              <Text style={styles.bulletItem}>• Industry-aligned learning paths</Text>
+              <Text style={styles.bulletItem}>• Assessment and Certification</Text>
             </View>
           </View>
 
@@ -35,10 +35,10 @@ export default function LandingPage() {
             <Text style={styles.cardTitle}>Information</Text>
             <Text style={styles.cardText}>Real-time insights into career opportunities and marked trends</Text>
             <View style={styles.bullets}>
-              <Text style={styles.bulltetItem}>• Live job market analytics</Text>
-              <Text style={styles.bulltetItem}>• Salary benchmarking tools</Text>
-              <Text style={styles.bulltetItem}>• Educational pathway guidance</Text>
-              <Text style={styles.bulltetItem}>• Industry trend reports</Text>
+              <Text style={styles.bulletItem}>• Live job market analytics</Text>
+              <Text style={styles.bulletItem}>• Salary benchmarking tools</Text>
+              <Text style={styles.bulletItem}>• Educational pathway guidance</Text>
+              <Text style={styles.bulletItem}>• Industry trend reports</Text>
             </View>
           </View>
 
@@ -48,10 +48,10 @@ export default function LandingPage() {
             <Text style={styles.cardTitle}>Inspire</Text>
             <Text style={styles.cardText}>Stories and mentorship from successful South African professionals</Text>
             <View style={styles.bullets}>
-              <Text style={styles.bulltetItem}>• Success story showcases</Text>
-              <Text style={styles.bulltetItem}>• Mentor matching system</Text>
-              <Text style={styles.bulltetItem}>• Virtual career talks</Text>
-              <Text style={styles.bulltetItem}>• Peer success celebrations</Text>
+              <Text style={styles.bulletItem}>• Success story showcases</Text>
+              <Text style={styles.bulletItem}>• Mentor matching system</Text>
+              <Text style={styles.bulletItem}>• Virtual career talks</Text>
+              <Text style={styles.bulletItem}>• Peer success celebrations</Text>
             </View>
           </View>
         </View>
@@ -74,7 +74,7 @@ export default function LandingPage() {
           </Button>
         </View>
       </ScrollView>
-    </MainLayout>
+    </>
   );
 }
 
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingLeft: 10,
   },
-  bulltetItem: {
+  bulletItem: {
     marginBottom: 6,
   },
   buttonContainer: {
