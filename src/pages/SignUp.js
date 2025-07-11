@@ -85,13 +85,17 @@ export default function SignUp() {
 
       {[
         { label: 'Full Name', name: 'fullName' },
-        { label: 'Gender (e.g. male/female)', name: 'gender' },
         { label: 'Age', name: 'age', keyboardType: 'numeric' },
+        { label: 'Home Language', name: 'language', keyboardType: 'Language' },
+        { label: 'Race', name: 'race', keyboardType: 'race' },
+        { label: 'Gender (e.g. male/female)', name: 'gender' },
         { label: 'Grade', name: 'grade', keyboardType: 'numeric' },
+         { label: 'Career Ambition', name: 'careerAmbition', multiline: true },
+         
         { label: 'School Name', name: 'schoolName' },
         { label: 'School Location', name: 'schoolLocation' },
         { label: 'School Principal', name: 'schoolPrincipal' },
-        { label: 'Career Ambition', name: 'careerAmbition', multiline: true },
+       
         { label: 'Email Address', name: 'email' },
         { label: 'Password', name: 'password', secureTextEntry: true },
       ].map((field, index) => (
